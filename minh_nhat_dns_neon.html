@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b18">
+<title>Minh Nhật DNS</title>
+<style>
+:root{--bg:#070b18;--panel:#101a31;--cyan:#42e8ff;--pink:#ff4db8;--muted:#9db0ca;--text:#f3f8ff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 15% 0%,#14294a 0,transparent 42%),radial-gradient(ellipse at 90% 20%,#30143b 0,transparent 35%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{width:min(920px,100%);margin:auto;padding:24px 16px 40px}
+header{text-align:center;padding:22px 8px 26px}
+.logo{width:64px;height:64px;margin:auto auto 12px;border:1px solid #42e8ff88;border-radius:20px;display:grid;place-items:center;color:var(--cyan);font-size:30px;box-shadow:0 0 22px #42e8ff55,inset 0 0 18px #42e8ff22}
+h1{margin:0;font-size:clamp(28px,7vw,42px);letter-spacing:1px;text-shadow:0 0 16px #42e8ff88}
+.sub{color:var(--muted);margin:8px 0 0}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 18px}
+.tab{border:1px solid #31435f;background:#0d1528;color:var(--muted);padding:11px 18px;border-radius:999px;font-weight:700}
+.tab.active{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px #42e8ff33}
+.panel{background:linear-gradient(145deg,#111d35ee,#0b1224ee);border:1px solid #334867;border-radius:22px;padding:20px;box-shadow:0 12px 35px #0005}
+.panel h2{margin:0 0 8px;font-size:22px}
+.muted{color:var(--muted);line-height:1.55}
+.dns-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.dns{background:#091326;border:1px solid #28425d;border-radius:15px;padding:15px}
+.dns small{display:block;color:var(--muted);margin-bottom:6px}
+.dns strong{font-size:20px;color:var(--cyan);letter-spacing:.4px}
+.btn{border:0;border-radius:13px;padding:12px 16px;background:linear-gradient(90deg,#12bcd7,#6b75ff);color:#06101d;font-weight:800;font-size:15px}
+.btn.secondary{background:#182641;color:var(--text);border:1px solid #3a5275}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.note{font-size:13px;color:#a8bad2;margin-top:14px}
+.hidden{display:none!important}
+.game-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.score{color:var(--cyan);font-weight:800}
+canvas{display:block;width:min(100%,440px);height:auto;aspect-ratio:1;margin:12px auto;background:#071020;border:1px solid #3a6681;border-radius:14px;box-shadow:0 0 22px #42e8ff22;touch-action:none}
+.controls{display:grid;grid-template-columns:repeat(3,58px);gap:7px;justify-content:center;margin:14px auto}
+.controls button{height:48px;font-size:20px}
+.controls .empty{visibility:hidden}
+footer{text-align:center;color:#7489a7;font-size:12px;padding:22px 8px}
+@media(max-width:420px){.wrap{padding:14px 12px 30px}.panel{padding:16px}.dns strong{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="logo">✦</div>
+  <h1>MINH NHẬT DNS</h1>
+  <p class="sub">NEON EDITION · DNS INFO & MINI GAME</p>
+</header>
+<nav class="tabs" aria-label="Điều hướng">
+  <button class="tab active" data-page="dns">◈ DNS</button>
+  <button class="tab" data-page="game">🐍 Snake</button>
+  <button class="tab" data-page="about">✧ Giới thiệu</button>
+</nav>
+
+<section id="dns" class="panel">
+  <h2>Cloudflare DNS</h2>
+  <p class="muted">Thông tin máy chủ DNS công cộng của Cloudflare. Bạn có thể tham khảo các địa chỉ dưới đây khi thiết lập DNS trên thiết bị.</p>
+  <div class="dns-grid">
+    <div class="dns"><small>IPv4 · Primary</small><strong>1.1.1.1</strong></div>
+    <div class="dns"><small>IPv4 · Secondary</small><strong>1.0.0.1</strong></div>
+    <div class="dns"><small>IPv6 · Primary</small><strong>2606:4700:4700::1111</strong></div>
+    <div class="dns"><small>IPv6 · Secondary</small><strong>2606:4700:4700::1001</strong></div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="copyDns">Sao chép DNS IPv4</button>
+    <button class="btn secondary" id="learnDns">Cách cài DNS trên iPhone</button>
+  </div>
+  <p class="note" id="dnsMsg" aria-live="polite">Lưu ý: Đây là trang web thông tin, không tự thay đổi DNS của iPhone. DNS không đảm bảo tăng FPS hoặc giảm ping trong mọi mạng.</p>
+</section>
+
+<section id="game" class="panel hidden">
+  <h2>Snake Neon</h2>
+  <p class="muted">Điều khiển rắn ăn điểm sáng. Tránh đâm vào tường hoặc chính mình nhé!</p>
+  <div class="game-top">
+    <span class="score">Điểm: <span id="score">0</span></span>
+    <span class="muted">Kỷ lục: <span id="best">0</span></span>
+    <button class="btn" id="start">Bắt đầu / Chơi lại</button>
+  </div>
+  <canvas id="board" width="400" height="400" aria-label="Bàn chơi Snake"></canvas>
+  <div class="controls" aria-label="Điều khiển Snake">
+    <span class="empty"></span><button class="btn secondary" data-dir="up">▲</button><span class="empty"></span>
+    <button class="btn secondary" data-dir="left">◀</button><button class="btn secondary" data-dir="down">▼</button><button class="btn secondary" data-dir="right">▶</button>
+  </div>
+  <p class="note" id="gameMsg" aria-live="polite">Nhấn “Bắt đầu” hoặc dùng các nút mũi tên. Bạn cũng có thể vuốt trên bàn chơi.</p>
+</section>
+
+<section id="about" class="panel hidden">
+  <h2>Minh Nhật DNS</h2>
+  <p class="muted">Một giao diện mini phong cách neon, kết hợp trang thông tin DNS và trò chơi Snake để giải trí.</p>
+  <div class="dns-grid">
+    <div class="dns"><small>Phiên bản</small><strong>1.0</strong></div>
+    <div class="dns"><small>Giao diện</small><strong>Neon</strong></div>
+  </div>
+  <p class="muted">Được thiết kế để hiển thị tốt trên Safari iPhone. Trò chơi chạy ngay trong trình duyệt, không cần cài ứng dụng.</p>
+</section>
+<footer>MINH NHẬT DNS · NEON EDITION</footer>
+</div>
+<script>
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.toggle('active',x===t));
+  ['dns','game','about'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==t.dataset.page));
+}));
+document.getElementById('copyDns').addEventListener('click',async()=>{
+  const msg=document.getElementById('dnsMsg');
+  try{await navigator.clipboard.writeText('1.1.1.1\\n1.0.0.1');msg.textContent='Đã sao chép hai địa chỉ DNS IPv4.'}
+  catch(e){msg.textContent='Safari chưa cho phép sao chép tự động. Hãy chọn và sao chép thủ công: 1.1.1.1 và 1.0.0.1.'}
+});
+document.getElementById('learnDns').addEventListener('click',()=>{
+ document.getElementById('dnsMsg').textContent='Vào Cài đặt → Wi‑Fi → nhấn nút (i) cạnh mạng đang dùng → Định cấu hình DNS → Thủ công. Ghi lại cấu hình cũ trước khi thay đổi, rồi nhập 1.1.1.1 và 1.0.0.1. Tên mục có thể khác tùy phiên bản iOS.';
+});
+const canvas=document.getElementById('board'),ctx=canvas.getContext('2d'),N=20,C=20;
+let snake,food,dir,next,score,timer,running=false;
+let best=0;try{best=Number(localStorage.getItem('mnSnakeBest')||0)}catch(e){}
+document.getElementById('best').textContent=best;
+function randFood(){let p;do{p={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(s=>s.x===p.x&&s.y===p.y));return p}
+function reset(){snake=[{x:9,y:10},{x:8,y:10},{x:7,y:10}];dir={x:1,y:0};next={...dir};score=0;food=randFood();document.getElementById('score').textContent=0;draw();document.getElementById('gameMsg').textContent='Trò chơi đã sẵn sàng!'}
+function draw(){
+ ctx.fillStyle='#071020';ctx.fillRect(0,0,400,400);
+ ctx.strokeStyle='#142943';ctx.lineWidth=1;
+ for(let i=0;i<=N;i++){ctx.beginPath();ctx.moveTo(i*C,0);ctx.lineTo(i*C,400);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*C);ctx.lineTo(400,i*C);ctx.stroke()}
+ ctx.shadowBlur=16;ctx.shadowColor='#ff4db8';ctx.fillStyle='#ff4db8';ctx.beginPath();ctx.arc(food.x*C+10,food.y*C+10,7,0,Math.PI*2);ctx.fill();
+ snake.forEach((p,i)=>{ctx.shadowColor='#42e8ff';ctx.shadowBlur=i===0?18:9;ctx.fillStyle=i===0?'#d9fbff':'#31cde8';ctx.fillRect(p.x*C+2,p.y*C+2,C-4,C-4)});
+ ctx.shadowBlur=0;
+}
+function end(){running=false;clearInterval(timer);document.getElementById('gameMsg').textContent='Game over! Bạn đạt '+score+' điểm. Nhấn Bắt đầu để chơi lại.'}
+function step(){
+ dir=next;const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+ if(head.x<0||head.y<0||head.x>=N||head.y>=N||snake.some(p=>p.x===head.x&&p.y===head.y)){end();return}
+ snake.unshift(head);
+ if(head.x===food.x&&head.y===food.y){score++;document.getElementById('score').textContent=score;if(score>best){best=score;document.getElementById('best').textContent=best;try{localStorage.setItem('mnSnakeBest',best)}catch(e){}}food=randFood()}
+ else snake.pop();draw();
+}
+function start(){clearInterval(timer);reset();running=true;timer=setInterval(step,125)}
+function setDir(d){const dirs={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};const v=dirs[d];if(v&&!(v.x===-dir.x&&v.y===-dir.y))next=v}
+document.getElementById('start').addEventListener('click',start);
+document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>setDir(b.dataset.dir)));
+document.addEventListener('keydown',e=>{const m={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};if(m[e.key]){e.preventDefault();setDir(m[e.key])}});
+let touch=null;canvas.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touch={x:t.clientX,y:t.clientY}},{passive:true});
+canvas.addEventListener('touchend',e=>{if(!touch)return;const t=e.changedTouches[0],dx=t.clientX-touch.x,dy=t.clientY-touch.y;if(Math.max(Math.abs(dx),Math.abs(dy))>18)setDir(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));touch=null},{passive:true});
+reset();
+</script>
+</body>
+</html>
